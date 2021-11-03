@@ -42,6 +42,15 @@ class User4 {
     val isValidName: Boolean get() = name != ""
 }
 
+// accessor, equals, hashCode, toString, componentN, copy が生成される
+data class User5(val id: Int, var name: String)
+
+fun printUserInfo(id: Int, name: String = "default"){
+    println("id = $id name=${name}")
+}
+
+data class User6(val id:Int, val name: String = "Defalut")
+
 fun main() {
     printOddOrEvenNumberText(1)
     printOddOrEvenNumberText(2)
@@ -69,5 +78,24 @@ fun main() {
     // println(user4.isValidName)
     user4.name = "taro"
     println(user4.isValidName) // true
+
+    // データクラスはコンストラクタの定義が必須
+    val user5 = User5(1, "kendrick")
+    user5.name = "kendrick lamar"
+    val sameUser5 = User5(1, "kendrick lamar")
+    val otherUser5 = User5(2, "kendrick lamar")
+    println(user5) // User5(id=1, name=kendrick lamar)
+    println(user5 == sameUser5) // true
+    println(user5 == otherUser5) // false
+    // 順番を指定してプロパティの値を取得できる
+    println(user5.component1()) // 1
+    println(user5.component2()) // kendrick lamar
+
+    // デフォルト引数を使用
+    printUserInfo(1)
+
+    // インスタンスの生成でもデフォルト引数は使用可能
+    val user6 = User6(1)
+    println(user6) // User6(id=1, name=Defalut)
 }
 
