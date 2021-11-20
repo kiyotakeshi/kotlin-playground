@@ -57,8 +57,8 @@ fun main() {
     println(getOddOrEvenNumberText(2));
 
     val user = User()
-    // lateinit にしていないので値が格納されていなくても呼び出せる null になる
-    println("username: ${user.name}")
+    // lateinit にしていないので値が格納されていなくても呼び出せる、空文字列 ""
+    println("username: ${user.name}") // username:
 
     // setter を経由して格納されている
     user.name = "Mike"
