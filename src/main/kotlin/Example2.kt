@@ -18,7 +18,10 @@ fun getOddOrEvenNumberText(num: Int): String {
 }
 
 
+// データのみが存在し、実装コードがないクラス = value object を宣言するための簡潔な構文
+// public がデフォルトの可視性のため、省略可能
 class User {
+    // property(フィールドとアクセサ)の記述方法
     // var だと getter,setter が自動で生成される
     var name = ""
 }
@@ -46,6 +49,9 @@ class User4 {
 data class User5(val id: Int, var name: String)
 
 fun printUserInfo(id: Int, name: String = "default"){
+    // $id は string template
+    // 文字列リテラルの中でローカル変数を参照できる
+    // StringBuilder を生成し連結するため処理速度は変わらない
     println("id = $id name=${name}")
 }
 

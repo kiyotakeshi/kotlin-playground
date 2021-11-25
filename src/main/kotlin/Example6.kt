@@ -20,4 +20,21 @@ fun main() {
         println(hoge * 2) // 20
         println(hoge * 4) // 40
     }
+
+    // ---------------------------
+    val persons = listOf(
+        Person("mike"),
+        Person("popcorn", age = 27),
+        Person("yamada", age = 33)
+    )
+
+    // エルビス演算子 ?: で null の時は 0 を返す
+    val oldest = persons.maxByOrNull {
+        // ラムダ引数のデフォルトの名前 it
+        it.age ?: 0
+    }
+    println("oldest person is: $oldest")
+    // ---------------------------
 }
+
+data class Person(val name: String, val age: Int? = null)
