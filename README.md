@@ -50,3 +50,5 @@
 
 - kotlin does not have the support for the static keyword
   - companion object can be used to introduce static functionalities
+
+- kotlin does not have checked exceptions
