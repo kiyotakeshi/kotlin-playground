@@ -41,4 +41,12 @@
 - 基本的には Java のディレクトリ構成に従って配置すると良い
   - ただしクラスが小さい時は複数のクラスを同じファイルに含めても問題ない
 
+- top level functions does not belong to a class(in Java, functions can only be part of class)
+  - In Kotlin, top level functions can be part of a .kt file(not a class)
 
+- top level properties does not belong to class
+
+- clas in OOP is fundamentally the blueprint for creating objects 
+
+- kotlin does not have the support for the static keyword
+  - companion object can be used to introduce static functionalities
