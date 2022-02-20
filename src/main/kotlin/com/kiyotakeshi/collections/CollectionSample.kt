@@ -26,4 +26,21 @@ fun main() {
     val nameAgeMutableMap = mutableMapOf("mike" to 27, "popcorn" to 33)
     nameAgeMutableMap["yamada"] = 41
     println("name age mutable map : $nameAgeMutableMap")
+
+    nameAgeMap
+        .forEach { (k, v) ->
+            println("key $k and the value is $v")
+        }
+
+    val value = nameAgeMap.getOrElse("bike") {"not found"}
+    println("value $value")
+
+    val filteredMap = nameAgeMap
+        .filterKeys { it.length > 5 }
+        .map { it.key.uppercase() }
+    println("filtered map : $filteredMap")
+
+    val maxAge = nameAgeMap
+        .maxOfOrNull { it.value }
+    println("max age : $maxAge")
 }
