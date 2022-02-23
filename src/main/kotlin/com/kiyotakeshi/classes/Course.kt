@@ -1,5 +1,7 @@
 package com.kiyotakeshi.classes
 
+import CourseInJava
+
 data class Course(
     val id: Int,
     val name: String,
@@ -21,4 +23,7 @@ fun main() {
 
     val course3 = Course(3, "how to increase sales", "yamada", CourseCategory.BUSINESS);
     println(course3)
+
+    val courseInJava = CourseInJava(2, "migrate java to kotlin", "none")
+    println("courseInJava : $courseInJava")
 }
