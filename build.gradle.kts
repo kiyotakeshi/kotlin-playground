@@ -11,8 +11,16 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+
+    // https://kotlinlang.org/docs/jvm-test-using-junit.html#run-a-test
+    testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
+    // testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 dependencies {
