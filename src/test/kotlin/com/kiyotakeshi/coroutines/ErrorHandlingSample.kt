@@ -1,9 +1,6 @@
 package com.kiyotakeshi.coroutines
 
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import org.junit.jupiter.api.Test
 
 /**
@@ -49,5 +46,25 @@ class ErrorHandlingSample {
             // 中断関数は CancellationException を throw する
             job.cancel()
         }
+    }
+
+    @Test
+    fun errorHandlingCoroutineScope() {
+        val context = Job()
+        val scope = CoroutineScope(context)
+        scope.launch {
+            try {
+                // 内部で起動した全ての coroutines の実行完了を待ってくれるため try-catch でエラーを取得できる
+                coroutineScope {
+                    launch {
+                        delay(1_000L)
+                        throw RuntimeException("error")
+                    }
+                }
+            } catch (e: Exception) {
+                println("catch error: $e")
+            }
+        }
+        Thread.sleep(1_500L)
     }
 }
