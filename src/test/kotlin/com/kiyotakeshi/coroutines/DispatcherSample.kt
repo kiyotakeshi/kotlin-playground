@@ -14,6 +14,7 @@ class DispatcherSample {
         val context = Dispatchers.Default
         val scope = CoroutineScope(context)
 
+        // 現在のスレッドを確認する
         println("thread: ${Thread.currentThread().name}") // thread: Test worker
 
         scope.launch {
@@ -38,9 +39,9 @@ class DispatcherSample {
         // IOタスク用のスレッド群(`Dispatchers.Default` と一部共有された)から1つ選んで実行する
         val context = Dispatchers.IO
         val scope = CoroutineScope(context)
-        println("thread1: ${Thread.currentThread().name}")
+        println("thread1: ${Thread.currentThread().name}") // thread1: Test worker
         scope.launch {
-            println("thread2: ${Thread.currentThread().name}")
+            println("thread2: ${Thread.currentThread().name}") // thread2: DefaultDispatcher-worker-1 @coroutine#1
         }
         Thread.sleep(1_000L)
     }
@@ -58,7 +59,8 @@ class DispatcherSample {
 
     @Test
     fun coroutineExceptionHandler() {
-        // tyy-catch で catch されなかったエラーを処理できる
+        // 同一 Coroutine 内であれば try-catch でエラーハンドリングできる
+        // CoroutineExceptionHandler はそこで try-catch で catch されなかったエラーを処理できる
         // root の CoroutineScope のみに適用できる
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
             println("exception: ${throwable.message}") // exception: error

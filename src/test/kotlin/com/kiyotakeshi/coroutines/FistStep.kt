@@ -8,13 +8,15 @@ import kotlin.coroutines.EmptyCoroutineContext
 /**
  * @author kiyota
  */
-internal class Sample {
+internal class FistStep {
 
     @Test
     fun coroutines() {
+        // Coroutines を起動するには CoroutineScope が必要
         // runBlocking creates new CoroutineScope and blocks the current thread until all coroutines in this scope complete
-        // 起動された全ての Coroutines が完了するまで動作をブロックするため実際のコードでは使われることはあまりない
+        // `runBlocking` は起動された全ての Coroutines が完了するまで動作をブロックするため実際のコードでは使われることはあまりない
         runBlocking {
+            // Coroutines を起動
             // every launch creates new coroutine and runs it concurrently
             launch {
                 println(1)
@@ -62,7 +64,7 @@ internal class Sample {
     @Test
     fun cancelCoroutineScope2() {
         val scope = CoroutineScope(EmptyCoroutineContext)
-        // child coroutine
+        // child coroutine(create new CoroutinesScope)
         scope.launch {
             print(1)
             // grand child coroutine

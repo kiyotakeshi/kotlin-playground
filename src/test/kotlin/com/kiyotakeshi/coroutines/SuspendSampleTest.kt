@@ -15,6 +15,7 @@ class SuspendSampleTest {
     fun suspend() {
         runBlocking {
             val suspendSample = SuspendSample()
+            // launch, async 内で suspend function の呼び出し
             val job = launch {
                 val data = suspendSample.fetchData()
                 println(data)

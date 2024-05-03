@@ -13,6 +13,7 @@ class ErrorHandlingSample {
         runBlocking {
             // 同一の CoroutineScope 内であれば try-catch を使用する
             launch {
+                // launch 内は非同期で実行される
                 try {
                     println("start")
                     delay(100L)
@@ -35,8 +36,9 @@ class ErrorHandlingSample {
                     delay(100L)
                     // これは呼ばれない
                     println("end")
-                    // coroutine の外に伝搬せず無視されるので catch しなくてもアプリケーションはクラッシュしない
-                } catch (e: CancellationException) {
+                }
+                // coroutine の外に伝搬せず無視されるので catch しなくてもアプリケーションはクラッシュしない
+                catch (e: CancellationException) {
                     println("catch error: $e")
                 } finally {
                     println("finally")
@@ -63,6 +65,116 @@ class ErrorHandlingSample {
                 }
             } catch (e: Exception) {
                 println("catch error: $e")
+            }
+        }
+        Thread.sleep(1_500L)
+    }
+
+    @Test
+    fun twoCoroutineWithException() {
+        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+            println("exception: ${throwable.message}")
+        }
+        val context = Job() + exceptionHandler
+        val scope = CoroutineScope(context)
+
+        // 2つの Coroutine を起動したが、
+        // いずれかが失敗したタイミングで他の Coroutine も全てキャンセルされる
+        // エラーは親と子の両方に伝搬し一つの Job に紐づいた Coroutine は全てキャンセルされる
+        scope.launch {
+            delay(500L)
+            throw Exception("error")
+            delay(500L)
+            // これは呼ばれない
+            println("complate 1")
+        }
+        scope.launch {
+            delay(1_000L)
+            // これも呼ばれない
+            println("complate 2")
+        }
+        Thread.sleep(1_500L)
+    }
+
+    @Test
+    fun twoCoroutineWithSupervisorJob() {
+        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+            println("exception: ${throwable.message}")
+        }
+        // SupervisorJob を使用することで、
+        // Coroutine の互いのキャンセルに干渉しなくなる(他の子 Coroutine をキャンセルしない)
+        val context = SupervisorJob() + exceptionHandler
+        val scope = CoroutineScope(context)
+
+        scope.launch {
+            delay(500L)
+            throw Exception("error")
+            delay(500L)
+            // これは呼ばれない
+            println("complate 1")
+        }
+        scope.launch {
+            delay(1_000L)
+            // これは呼ばれる
+            println("complate 2")
+        }
+        Thread.sleep(1_500L)
+    }
+
+    @Test
+    fun supervisorJobChildCoroutineScopeIsJob() {
+        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+            println("exception: ${throwable.message}")
+        }
+        val context = SupervisorJob() + exceptionHandler
+        val scope = CoroutineScope(context)
+
+        // child CoroutineScope
+        scope.launch {
+            // grand child CoroutineScope 1
+            // child CoroutineScope から新しい CoroutineScope を作成する時
+            // Supervisor Job ではなく Job になる
+            launch {
+                delay(500L)
+                throw Exception("error")
+                delay(500L)
+                // これは呼ばれない
+                println("complate 1")
+            }
+            // grand child CoroutineScope 2
+            launch {
+                delay(1_000L)
+                // これも呼ばれない
+                println("complate 2")
+            }
+        }
+        Thread.sleep(1_500L)
+    }
+
+    @Test
+    fun supervisorJobChildCoroutineScopeUseSupervisorJob() {
+        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+            println("exception: ${throwable.message}")
+        }
+        val context = SupervisorJob() + exceptionHandler
+        val scope = CoroutineScope(context)
+
+        // child CoroutineScope
+        scope.launch {
+            supervisorScope {
+                launch {
+                    delay(500L)
+                    throw Exception("error")
+                    delay(500L)
+                    // これは呼ばれない
+                    println("complate 1")
+                }
+                // grand child CoroutineScope 2
+                launch {
+                    delay(1_000L)
+                    // これは呼ばれる
+                    println("complate 2")
+                }
             }
         }
         Thread.sleep(1_500L)
