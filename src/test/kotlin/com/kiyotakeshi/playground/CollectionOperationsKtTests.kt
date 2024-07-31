@@ -1,12 +1,8 @@
-package com.kiyotakeshi.collections
+package com.kiyotakeshi.playground
 
-import com.kiyotakeshi.classes.Person
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.util.Comparator
 
 class CollectionOperationsKtTests {
@@ -258,7 +254,7 @@ class CollectionOperationsKtTests {
             // 遅延評価(lazy evaluation)を行い、終端処理で map を返す
             val words = listOf("one", "two", "three", "four", "five")
             val grouping: Grouping<String, Char> = words.groupingBy { it.first().uppercaseChar() }
-            println(grouping) // com.kiyotakeshi.collections.CollectionOperationsKtTests$GroupTests$groupingBy$$inlined$groupingBy$1@17bffc17
+            println(grouping) // com.kiyotakeshi.playground.CollectionOperationsKtTests$GroupTests$groupingBy$$inlined$groupingBy$1@17bffc17
 
             // 終端関数(terminal operation)で初めて grouping 化
             val eachCount = grouping.eachCount()

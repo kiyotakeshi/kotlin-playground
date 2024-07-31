@@ -5,14 +5,14 @@ interface User {
     val nickname: String
 }
 
-private fun getNameFromSocialNetwork(accounId: Int): String = "soc:$accounId"
-
 class PrivateUser(override val nickname: String) : User
 
 class SubscribingUser(val email: String) : User {
     override val nickname: String
         get() = email.substringBefore('@')
 }
+
+private fun getNameFromSocialNetwork(accounId: Int): String = "soc:$accounId"
 
 class SocialUser(val accounId: Int) : User {
     override val nickname: String
