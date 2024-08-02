@@ -3,6 +3,7 @@ package com.kiyotakeshi.playground
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.Comparator
 
 class CollectionOperationsKtTests {
@@ -190,6 +191,34 @@ class CollectionOperationsKtTests {
             // 全て合致していない
             assertThat(numbers.none() { it < 0 }).isTrue()
         }
+
+        @Test
+        fun noneRequire() {
+            val numbers = listOf(1, 2, 3, 4, -1)
+
+            assertThrows<IllegalArgumentException> {
+                // 一つでも条件を満たすものがあると例外が発生する
+                require(numbers.none { it < 0 }) {
+                    "numbers must be positive"
+                }
+            }
+        }
+
+        @Test
+        fun anyRequire() {
+            val numbers = listOf(1, 2, 3, 4, -1)
+
+            assertThrows<IllegalArgumentException> {
+                require(numbers
+                    .any { it < 0 } // -1 が含まれている = true
+                    .not() // 反転させる
+                ) {
+                    "numbers must have negative" // これが呼ばれる
+                }
+            }.let { e ->
+                assertThat(e.message).isEqualTo("numbers must have negative")
+            }
+        }
     }
 
     @Nested
@@ -332,7 +361,7 @@ class CollectionOperationsKtTests {
         fun elementAt() {
             val numbers = listOf(1, 2, 3, 4)
             assertThat(numbers.elementAt(2)).isEqualTo(3)
-            assertThat(numbers.elementAtOrElse(4) { "not found"}).isEqualTo("not found")
+            assertThat(numbers.elementAtOrElse(4) { "not found" }).isEqualTo("not found")
         }
     }
 
@@ -377,7 +406,7 @@ class CollectionOperationsKtTests {
                 Person("sarah", 25),
                 Person("mike", 20),
 
-            )
+                )
             val comparetor: Comparator<Person> = compareBy<Person> { it.name }.thenBy { it.age }
             val sortedPeople = people.sortedWith(comparetor)
             assertThat(sortedPeople).containsExactly(
@@ -459,8 +488,155 @@ class CollectionOperationsKtTests {
         @Test
         fun foldIndexed() {
             val numbers = listOf(1, 2, 3, 4, 6)
-            val sum = numbers.foldIndexed(10) { index, sum, element -> if(index % 2 == 0) sum + element else sum }
+            val sum = numbers.foldIndexed(10) { index, sum, element -> if (index % 2 == 0) sum + element else sum }
             assertThat(sum).isEqualTo(20)
+        }
+    }
+
+    @Nested
+    inner class CollectionTests {
+        @Test
+        fun filterMapFlattenToSet() {
+            val courseList = createCourses()
+
+            val tagSet = courseList.filter { it.category == CourseCategory.DEVELOPMENT }
+                .map { it.tags }
+                // .flatten() しない場合は val tagSet: Set<List<String>>
+                .flatten()
+                .toSet()
+            // .forEach { println(it) }
+            assertThat(tagSet).containsExactlyInAnyOrder(
+                "Reactive Programming",
+                "java",
+                "SpringBoot",
+                "Kafka",
+                "Integration Testing",
+                "MultiThreading"
+            )
+
+            // .flatten() しない場合の assert
+//            assertThat(tagSet).containsExactlyInAnyOrder(
+//                listOf("Reactive Programming", "java", "SpringBoot"),
+//                listOf("java"),
+//                listOf("Kafka"),
+//                listOf("Reactive Programming", "java"),
+//                listOf("Kafka", "java", "SpringBoot"),
+//                listOf("java", "Integration Testing"),
+//                listOf("java", "MultiThreading")
+//            )
+        }
+
+        @Test
+        fun filterMap() {
+            val courseList = createCourses()
+
+            val hobbyList = courseList
+                .filter { it.category == CourseCategory.HOBBY }
+                .map { "${it.name} - ${it.category}" }
+
+            assertThat(hobbyList).containsExactly("Healthy Cooking - HOBBY")
+        }
+
+        @Test
+        fun mapMap() {
+            val list: List<List<Int>> = listOf(listOf(1, 2, 3), listOf(4, 5, 6))
+            val result: List<List<Double>> = list.map { outerList ->
+                outerList.map {
+                    it.toDouble()
+                }
+            }
+            println(result) // [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
+            assertThat(result).containsExactly(listOf(1.0, 2.0, 3.0), listOf(4.0, 5.0, 6.0))
+        }
+
+        @Test
+        fun mapFlatMap() {
+            val list: List<List<Int>> = listOf(listOf(1, 2, 3), listOf(4, 5, 6))
+            val result: List<Double> = list.flatMap { outerList ->
+                outerList.map {
+                    it.toDouble()
+                }
+            }
+            println(result) // [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+            assertThat(result).containsExactly(1.0, 2.0, 3.0, 4.0, 5.0, 6.0)
+        }
+
+        @Test
+        fun flatten() {
+            val list: List<List<Int>> = listOf(listOf(1, 2, 3), listOf(4, 5, 6))
+            // flatten だとひとまとめにするため今回のデータ構造だと処理を挟めない
+            val result: List<Int> = list.flatten()
+            println(result) // [1, 2, 3, 4, 5, 6]
+            assertThat(result).containsExactly(1, 2, 3, 4, 5, 6)
+        }
+
+        @Test
+        fun flatMapFilterMapOrFilterMap() {
+            val courseList = createCourses()
+
+            // mutableListOf(
+            //        Course(
+            //            id = 1,
+            //            name = "Reactive MicroServices using Spring Boot(WebFlux)",
+            //            category = CourseCategory.DEVELOPMENT,
+            //            tags = mutableListOf(REACTIVE_PROGRAMMING, JAVA, SPRING_BOOT)
+            //        ),
+
+//            val springBootTagCourses: List<String> = courseList.flatMap { course ->
+//                // val tags: List<String> = course.tags
+//                course.tags.filter {
+//                    it == SPRING_BOOT
+//                }.map { course.name }
+//            }
+
+            val springBootTagCourses: List<String> = courseList
+                .filter { course -> SPRING_BOOT in course.tags }
+                .map { course -> course.name }
+
+            assertThat(springBootTagCourses).containsExactly(
+                "Reactive MicroServices using Spring Boot(WebFlux)",
+                "Apache Kafka hands-on using SpringBoot"
+            )
+        }
+
+        @Test
+        fun getOrElse() {
+            val nameAgeMap = mapOf("mike" to 27, "popcorn" to 33)
+            val found = nameAgeMap.getOrElse("mike") { "not found" }
+            val notFound = nameAgeMap.getOrElse("bike") { "not found" }
+            assertThat(found).isEqualTo(27)
+            assertThat(notFound).isEqualTo("not found")
+        }
+
+        @Test
+        fun filterKeysFilterValues() {
+            val courseStudentMap = mapOf(
+                Course(
+                    id = 1,
+                    name = "Reactive MicroServices using Spring Boot(WebFlux)",
+                    category = CourseCategory.DEVELOPMENT,
+                    tags = mutableListOf(REACTIVE_PROGRAMMING, JAVA, SPRING_BOOT)
+                ) to Student("mike", 27),
+                Course(
+                    2,
+                    "Learn Java 17 Features By coding it",
+                    CourseCategory.DEVELOPMENT,
+                    mutableListOf(JAVA)
+                ) to Student("popcorn", 33),
+            )
+            val filterValues = courseStudentMap
+                .filterKeys { it.category == CourseCategory.DEVELOPMENT }
+                .filterValues { it.age > 30 }
+
+            assertThat(filterValues).containsKeys(
+                Course(
+                    2,
+                    "Learn Java 17 Features By coding it",
+                    CourseCategory.DEVELOPMENT,
+                    mutableListOf(JAVA)
+                )
+            )
+            assertThat(filterValues).containsValues(Student("popcorn", 33))
         }
     }
 }

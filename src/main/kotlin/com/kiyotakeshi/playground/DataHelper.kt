@@ -1,4 +1,4 @@
-package com.kiyotakeshi.sampleData
+package com.kiyotakeshi.playground
 
 const val KAFKA = "Kafka"
 const val BUSINESS_ANALYTICS = "Business Analytics"
@@ -16,6 +16,11 @@ data class Course(
     val tags: List<String>
 )
 
+data class Student(
+    val name: String,
+    val age: Int,
+)
+
 enum class CourseCategory{
     DEVELOPMENT,
     BUSINESS,
@@ -30,14 +35,14 @@ data class Instructor(
 )
 
 
-fun courseList(): MutableList<Course> {
+fun createCourses(): MutableList<Course> {
 
     return mutableListOf(
         Course(
-            1,
-            "Reactive MicroServices using Spring Boot(WebFlux)",
-            CourseCategory.DEVELOPMENT,
-            mutableListOf(REACTIVE_PROGRAMMING, JAVA, SPRING_BOOT)
+            id = 1,
+            name = "Reactive MicroServices using Spring Boot(WebFlux)",
+            category = CourseCategory.DEVELOPMENT,
+            tags = mutableListOf(REACTIVE_PROGRAMMING, JAVA, SPRING_BOOT)
         ),
         Course(
             2,
