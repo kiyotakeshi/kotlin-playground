@@ -9,7 +9,7 @@ class User {
         get() = name != ""
 }
 
-data class Person(val id: Int, var name: String)
+data class Human(val id: Int, var name: String)
 
 fun nameLength(name: String?): Int? {
     return try {

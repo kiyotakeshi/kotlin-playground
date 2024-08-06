@@ -52,9 +52,9 @@ class ExampleKtTests {
 
     @Test
     fun dataClassEquals() {
-        val person1 = Person(1, "taro")
-        val person2 = Person(1, "taro")
-        val person3 = Person(2, "taro")
+        val person1 = Human(1, "taro")
+        val person2 = Human(1, "taro")
+        val person3 = Human(2, "taro")
 
         assertThat(person1).isEqualTo(person2)
         assertThat(person1).isNotEqualTo(person3)
@@ -62,7 +62,7 @@ class ExampleKtTests {
 
     @Test
     fun dataClassComponentN() {
-        val person = Person(1, "taro")
+        val person = Human(1, "taro")
 
         // 順番を指定して property にアクセスできる
         assertThat(person.component1()).isEqualTo(1)
