@@ -98,6 +98,7 @@ class CollectionOperationsKtTests {
         fun associateBy() {
             val numbers = listOf("one", "two", "three", "four")
             val associateBy = numbers.associateBy { it.first().uppercaseChar() }
+            // key と指定されているもので重複するもの(two と three の処理結果の `T`)があるので、後勝ちになる
             println(associateBy) // {O=one, T=three, F=four}
 
             val associateBy2 = numbers.associateBy(

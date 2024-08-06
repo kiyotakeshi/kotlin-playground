@@ -24,6 +24,20 @@ class ScopeFunctionsKtTests {
         }
 
         @Test
+        fun `let transformation function explicit and change lambda argument`() {
+            val stringBuilder = StringBuilder("Hello, ")
+            // let は lambda の引数に it をとっているので、
+            // 引数の変数名を変更することも、型を明示的に記載することもできる
+            val result = stringBuilder.let { sb: StringBuilder ->
+                sb.append("this is a transformation function.")
+                sb.append("It takes a StringBuilder instance and ")
+                sb.append("returns the number of characters in the generated String")
+                sb.length
+            }
+            assertThat(result).isEqualTo(135)
+        }
+
+        @Test
         fun `let function`() {
             // let を使わなかった場合、新しい変数を定義し、使うたびにその名前を繰り返さないといけない
             val alice = Person("Alice", 20, "Amsterdam")
@@ -69,6 +83,14 @@ class ScopeFunctionsKtTests {
             }.filter {
                 it != "THREE"
             })
+
+            // let がコードブロックに引数として関数を一つだけ含む場合、 method reference も使用できる
+            list.map {
+                it.uppercase()
+            }.filter {
+                it != "THREE"
+            // }.let(::println)
+            }.let(::println)
         }
 
         @Test
@@ -97,31 +119,70 @@ class ScopeFunctionsKtTests {
         }
 
         @Test
-        fun `null let`() {
+        fun `null let null`() {
             var name: String? = null
+
+            // Compilation error. See log for more details
+            // processNonNullString(name)
+            // safe call operator `?.` と let を組み合わせることで、null の場合は実行されない
             val result: String? = name?.let {
                 // this block will not be executed
                 println(it)
+
+                // non null なので実行できる
+                // 関数の引数を基本的に non null で定義して ?.let で null でないことを確認して実行するべし
+                processNonNullString(it)
                 it.uppercase()
             }
             assertThat(result).isNull()
         }
 
         @Test
-        fun `null let2`() {
+        fun `null let non null`() {
             var name: String? = null
             name = "mike"
             val result: String? = name?.let {
                 println(it)
+                // non null なので実行される
+                // processNonNullString の実行結果は let の戻り値ではない
+                processNonNullString(it)
                 it.uppercase()
             }
             assertThat(result).isEqualTo("MIKE")
         }
 
         @Test
+        fun `null let non null2`() {
+            var name: String? = null
+            name = "mike"
+            val result: String? = name?.let {
+                println(it)
+                // let の終わりで実行しているので processNonNullString の実行結果が戻り値
+                processNonNullString(it)
+            }
+            assertThat(result).isEqualTo("processing non null string: mike")
+        }
+
+        @Test
         fun `let with null and elvis operator`() {
             assertThat(getMessageWithLet(null)).isEqualTo("value was null")
             assertThat(getMessageWithLet("hello")).isEqualTo("value was not null: hello")
+        }
+
+        @Test
+        fun `let with collection`() {
+            val numbers = listOf("one", "two", "three", "four", "five")
+
+            val result: Set<String> = numbers.associateWith { it.length } // Map<String, Int>
+                .filterValues { it > 3 }
+                .keys
+            assertThat(result).containsExactly("three", "four", "five")
+
+            // assertThat(result3).containsExactly("three", "four", "five")
+
+            // もっと簡潔に書けた
+            val result2 = numbers.filter { it.length > 3 }
+            assertThat(result2).containsExactly("three", "four", "five")
         }
     }
 
@@ -138,6 +199,7 @@ class ScopeFunctionsKtTests {
                 // receiver object として this を参照して、 receiver object を返す
                 // Calls the specified function block with this value as its receiver and returns this value.
                 // public inline fun <T> T.apply(block: T.() -> Unit): T {
+                // .apply { -> // lambda の signature としては argument はない
                 .apply {
                     println("in apply")
                     println(this)
@@ -149,6 +211,19 @@ class ScopeFunctionsKtTests {
             println("out of apply")
             println(person)
             assertThat(person).isEqualTo(Person("Alice", 21, "London"))
+        }
+
+        @Test
+        fun `apply the following assignments to the object`() {
+
+            // 値を返さずに主に receiver object のメンバを操作するコードブロックに使用する事が勧められている
+            // use it for code blocks that don't return a value
+            // and that mainly operate on the members of the receiver object.
+            val adam = Person("adam").apply {
+                age = 32
+                city = "London"
+            }
+            assertThat(adam).isEqualTo(Person("adam", 32, "London"))
         }
 
         @Test
@@ -226,6 +301,7 @@ class ScopeFunctionsKtTests {
     // also and apply are mutation functions
     // a mutation function operates on the given object and return it
     // also と apply は与えられたオブジェクトを操作してそれを返す
+    // "and also do the following with the object"(そして、そのオブジェクトで次のことも行う) という用途
     @Nested
     inner class AlsoTests {
 
@@ -237,12 +313,86 @@ class ScopeFunctionsKtTests {
             val headers = restClient.getResponse()
                 // 呼び出されたオブジェクトを返すので
                 // public inline fun <T> T.also(block: (T) -> Unit): T {
+                // .also { it: Response ->
                 .also { logger.info(it.toString()) } // Message is: Response(headers=Headers(headerInfo=some header info))
                 // also の inline function を抜けた際に、 receiver object と同じ Response 型が返る
                 .headers
 
             assertThat(logger.wasCalled()).isTrue()
             assertThat(headers.headerInfo).isEqualTo("some header info")
+        }
+    }
+
+    @Nested
+    inner class TakeTests {
+        // takeIf and takeUnless let you embed checks of the object's state into the call chain
+        // object の状態のチェックを call chain に埋め込む事ができる
+        // 与えられた述語を満たす場合にオブジェクトを返し、満たさない場合は null を返す
+        // つまり、単一のオブジェクトに対するフィルタリング関数
+        @Test
+        fun `takeIf null`() {
+            val person = Person("Alice", 20, "Amsterdam")
+            assertThat(person.takeIf { it.age > 21 }).isNull()
+        }
+
+        @Test
+        fun `takeIf person`() {
+            val person = Person("Alice", 20, "Amsterdam")
+            assertThat(person.takeIf { it.age > 19 }).isEqualTo(person)
+        }
+
+        @Test
+        fun `takeUnless person`() {
+            val person = Person("Alice", 20, "Amsterdam")
+            assertThat(person.takeUnless { it.age > 21 }).isEqualTo(person)
+        }
+
+        @Test
+        fun `takeUnless null`() {
+            val person = Person("Alice", 20, "Amsterdam")
+            assertThat(person.takeUnless { it.age > 19 }).isNull()
+        }
+
+        @Test
+        fun `takeIf and chaining function`() {
+            val str = "hello"
+            // safe call operator `?.` と組み合わせる
+            assertThat(
+                str.takeIf { it.isNotEmpty() }?.uppercase()
+            ).isEqualTo("HELLO")
+        }
+
+        @Test
+        fun `takeIfContainsW`() {
+            assertThat(takeIfContainsW("hello")).isEqualTo("no 'w' in hello")
+            assertThat(takeIfContainsW("world")).isEqualTo("world")
+        }
+
+        @Test
+        fun `takeIf combination with scope function`() {
+            // println("hello".indexOf("h")) // 0
+            // println("hello".indexOf("w")) // -1
+            val sub = "h"
+            val input = "hello"
+
+            input.indexOf(sub).takeIf { it >= 0 }?.let {
+                println("the substring $sub is found in $it") // the substring h is found in 0
+                println("its start position is $it") // its start position is 0
+            }
+
+            // takeIf は null を返すので、その後の処理は実行されない
+            input.indexOf("w").takeIf { it >= 0 }?.let {
+                println("not exec")
+            }
+
+            // takeIf を使わない場合
+            if (input.indexOf(sub) >= 0) {
+                println("the substring $sub is found in $") // the substring h is found in 0
+            }
+
+            if(input.indexOf("w") >= 0) {
+                println("not exec")
+            }
         }
     }
 }
