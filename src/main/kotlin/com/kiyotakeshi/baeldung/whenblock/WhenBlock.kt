@@ -27,6 +27,7 @@ sealed class UnixFile {
     }
 }
 
+@Suppress("ReturnCount")
 fun isPositiveInt(number: Int): Boolean {
     return when (number) {
         0 -> {

@@ -16,6 +16,5 @@ class RegexInKotlinKtTests {
         val parsePath = parsePathRegex("/Users/takeshi-kiyota/kotlin-playground/memo.md")
         assertThat(parsePath)
             .isEqualTo("dir: /Users/takeshi-kiyota/kotlin-playground, name: memo, ext: md")
-
     }
 }

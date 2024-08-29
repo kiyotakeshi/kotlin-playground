@@ -1,4 +1,4 @@
-package com.kiyotakeshi.inAction2nd.classObjectInterface
+package com.kiyotakeshi.inAction2nd.ch04
 
 interface User {
     // an interface can contain abstract property declarations
@@ -19,4 +19,3 @@ class SocialUser(val accounId: Int) : User {
         // custom getter
         get() = getNameFromSocialNetwork(accounId)
 }
-

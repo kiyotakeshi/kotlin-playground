@@ -1,6 +1,7 @@
 package com.kiyotakeshi.baeldung.whenblock
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class UnixFileTests {
@@ -115,7 +116,6 @@ class UnixFileTests {
         }
 
         assertTrue(isCorrectType)
-
     }
 
     @Test

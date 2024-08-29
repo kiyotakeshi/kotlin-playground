@@ -26,7 +26,7 @@ class CollectionOperationsKtTests {
             // .mapIndexed {} は inline function
             // public inline fun <T, R> Iterable<T>.mapIndexed(transform: (index: Int, T) -> R): List<R> {
             //    return mapIndexedTo(ArrayList<R>(collectionSizeOrDefault(10)), transform)
-            //}
+            // }
             val squared = numbers.mapIndexed { index, value -> value * index }
             assertThat(squared).containsExactly(0, 2, 6, 12)
         }
@@ -57,7 +57,7 @@ class CollectionOperationsKtTests {
             // infix function
             // public infix fun <T, R> Iterable<T>.zip(other: Iterable<R>): List<Pair<T, R>> {
             //    return zip(other) { t1, t2 -> t1 to t2 }
-            //}
+            // }
             // val zippedList = colors zip animals
             val zippedList: List<Pair<String, String>> = colors.zip(animals)
             println(zippedList) // [(red, fox), (green, bear), (blue, wolf)]
@@ -101,11 +101,43 @@ class CollectionOperationsKtTests {
             // key と指定されているもので重複するもの(two と three の処理結果の `T`)があるので、後勝ちになる
             println(associateBy) // {O=one, T=three, F=four}
 
-            val associateBy2 = numbers.associateBy(
+            assertThat(associateBy).containsKeys('O', 'T', 'F')
+            assertThat(associateBy).containsValues("one", "three", "four")
+            assertThat(associateBy).containsExactlyEntriesOf(mapOf('O' to "one", 'T' to "three", 'F' to "four"))
+        }
+
+        @Test
+        fun associateBy2() {
+            val numbers = listOf("one", "two", "three", "four")
+            val associateBy = numbers.associateBy(
                 keySelector = { it.first().uppercaseChar() },
-                valueTransform = { it.length })
-            println(associateBy2) // {O=3, T=5, F=4}
-            assertThat(associateBy2).containsExactlyEntriesOf(mapOf('O' to 3, 'T' to 5, 'F' to 4))
+                valueTransform = { it.length }
+            )
+            println(associateBy) // {O=3, T=5, F=4}
+
+            assertThat(associateBy).containsKeys('O', 'T', 'F')
+            assertThat(associateBy).containsValues(3, 5, 4)
+            assertThat(associateBy).containsExactlyEntriesOf(mapOf('O' to 3, 'T' to 5, 'F' to 4))
+        }
+
+        @Test
+        fun associateBy3() {
+            data class Person(val firstName: String, val lastName: String)
+
+            val scientists = listOf(
+                Person("Grace", "Hopper"),
+                Person("Jacob", "Bernoulli"),
+                Person("Johann", "Bernoulli")
+            )
+
+            val byLastName = scientists.associateBy({ it.lastName }, { it.firstName })
+            // IDE の Add names to call arguments で引数名を表示した場合
+            // val byLastName = scientists.associateBy(keySelector = { it.lastName }, valueTransform = { it.firstName })
+
+            // Bernoulli の key が重複しているので、 Jacob Bernoulli は上書きされて Johann のみが value となる
+            println(byLastName) // {Hopper=Grace, Bernoulli=Johann}
+            assertThat(byLastName).containsKeys("Hopper", "Bernoulli")
+            assertThat(byLastName).containsValues("Grace", "Johann")
         }
     }
 
@@ -190,7 +222,7 @@ class CollectionOperationsKtTests {
         fun none() {
             val numbers = listOf(1, 2, 3, 4)
             // 全て合致していない
-            assertThat(numbers.none() { it < 0 }).isTrue()
+            assertThat(numbers.none { it < 0 }).isTrue()
         }
 
         @Test
@@ -210,9 +242,10 @@ class CollectionOperationsKtTests {
             val numbers = listOf(1, 2, 3, 4, -1)
 
             assertThrows<IllegalArgumentException> {
-                require(numbers
-                    .any { it < 0 } // -1 が含まれている = true
-                    .not() // 反転させる
+                require(
+                    numbers
+                        .any { it < 0 } // -1 が含まれている = true
+                        .not() // 反転させる
                 ) {
                     "numbers must have negative" // これが呼ばれる
                 }
@@ -273,7 +306,8 @@ class CollectionOperationsKtTests {
             val numbers = listOf("one", "two", "three", "four", "five")
             val groupedBy2 = numbers.groupBy(
                 keySelector = { it.first().uppercaseChar() },
-                valueTransform = { it.length })
+                valueTransform = { it.length }
+            )
             println(groupedBy2) // {O=[3], T=[3, 5], F=[4, 4]}
             val expected = mapOf('O' to listOf(3), 'T' to listOf(3, 5), 'F' to listOf(4, 4))
             assertThat(groupedBy2).containsExactlyEntriesOf(expected)
@@ -407,7 +441,7 @@ class CollectionOperationsKtTests {
                 Person("sarah", 25),
                 Person("mike", 20),
 
-                )
+            )
             val comparetor: Comparator<Person> = compareBy<Person> { it.name }.thenBy { it.age }
             val sortedPeople = people.sortedWith(comparetor)
             assertThat(sortedPeople).containsExactly(
@@ -476,7 +510,6 @@ class CollectionOperationsKtTests {
             val sum = numbers.reduce { acc, number -> acc + number }
             assertThat(sum).isEqualTo(10)
         }
-
 
         @Test
         fun fold() {

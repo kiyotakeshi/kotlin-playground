@@ -1,4 +1,4 @@
-package com.kiyotakeshi.inAction2nd.classObjectInterface
+package com.kiyotakeshi.inAction2nd.ch04
 
 import org.junit.jupiter.api.Test
 

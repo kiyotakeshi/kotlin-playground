@@ -19,7 +19,7 @@ data class RestClient(val url: String) {
 }
 
 class Logger {
-    var called : Boolean = false
+    var called: Boolean = false
 
     fun info(message: String) {
         println("Message is: $message")

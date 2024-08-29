@@ -1,7 +1,10 @@
 package com.kiyotakeshi.inAction2nd.ch02
 
+@Suppress("MagicNumber")
 enum class Color(
-    val r: Int, val g: Int, val b: Int
+    val r: Int,
+    val g: Int,
+    val b: Int
 ) {
     RED(255, 0, 0),
     BLUE(0, 0, 255),

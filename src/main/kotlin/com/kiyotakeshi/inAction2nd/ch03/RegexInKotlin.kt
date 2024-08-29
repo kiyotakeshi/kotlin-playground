@@ -19,7 +19,7 @@ fun parsePath(path: String): String {
 fun parsePathRegex(path: String): String {
     val regex = """
         (.+)/(.+)\.(.+)
-        """.trimIndent().toRegex()
+    """.trimIndent().toRegex()
     val matchResult = regex.matchEntire(path)
     if (matchResult != null) {
         val (directory, filename, extension) = matchResult.destructured

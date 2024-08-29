@@ -1,3 +1,5 @@
+@file:Suppress("ImportOrdering")
+
 package com.kiyotakeshi.inAction2nd.ch03.inner
 
 // extension function が package 外の場合は import が必要

@@ -78,18 +78,20 @@ class ScopeFunctionsKtTests {
             }.let { println(it) }
 
             // let を使わなかった場合...
-            println(list.map {
-                it.uppercase()
-            }.filter {
-                it != "THREE"
-            })
+            println(
+                list.map {
+                    it.uppercase()
+                }.filter {
+                    it != "THREE"
+                }
+            )
 
             // let がコードブロックに引数として関数を一つだけ含む場合、 method reference も使用できる
             list.map {
                 it.uppercase()
             }.filter {
                 it != "THREE"
-            // }.let(::println)
+                // }.let(::println)
             }.let(::println)
         }
 
@@ -215,7 +217,6 @@ class ScopeFunctionsKtTests {
 
         @Test
         fun `apply the following assignments to the object`() {
-
             // 値を返さずに主に receiver object のメンバを操作するコードブロックに使用する事が勧められている
             // use it for code blocks that don't return a value
             // and that mainly operate on the members of the receiver object.
@@ -390,7 +391,7 @@ class ScopeFunctionsKtTests {
                 println("the substring $sub is found in $") // the substring h is found in 0
             }
 
-            if(input.indexOf("w") >= 0) {
+            if (input.indexOf("w") >= 0) {
                 println("not exec")
             }
         }

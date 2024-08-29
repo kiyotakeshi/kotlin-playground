@@ -21,7 +21,7 @@ data class Student(
     val age: Int,
 )
 
-enum class CourseCategory{
+enum class CourseCategory {
     DEVELOPMENT,
     BUSINESS,
     HOBBY
@@ -30,13 +30,12 @@ enum class CourseCategory{
 data class Instructor(
     val name: String,
     val age: Int,
-    val noOfCourses : Int,
-    val coursesTaught : List<Course>
+    val noOfCourses: Int,
+    val coursesTaught: List<Course>
 )
 
-
+@Suppress("MagicNumber")
 fun createCourses(): MutableList<Course> {
-
     return mutableListOf(
         Course(
             id = 1,
