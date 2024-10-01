@@ -363,6 +363,7 @@ class CollectionOperationsKtTests {
         @Test
         fun firstOrNull() {
             val numbers = listOf<Int>()
+            assertThat(numbers).isEmpty()
             assertThat(numbers.firstOrNull()).isNull()
 
             val numbers2 = listOf(1, 2, 3, 4)
