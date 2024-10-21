@@ -17,6 +17,30 @@ class ForEachAndException {
             map[id] ?: internalError("id $id not found")
         }
     }
+
+    @Test
+    fun `test missing IDs throw InternalException(all id executed)`() {
+        val map = mapOf(1 to "one", 3 to "three", 5 to "five")
+        val ids = listOf(1, 2, 3, 4, 5)
+
+        ids.toSet().subtract(map.keys).let { missingIds ->
+            if (missingIds.isNotEmpty()) {
+                internalError("ids: $missingIds not found")
+            }
+        }
+    }
+
+    @Test
+    fun `test missing IDs throw InternalException(all id executed)2`() {
+        val map = mapOf(1 to "one", 3 to "three", 5 to "five")
+        val ids = listOf(1, 2, 3, 4, 5)
+
+        ids.toSet().filterNot { map.containsKey(it) }.let { missingIds ->
+            if (missingIds.isNotEmpty()) {
+                internalError("ids: $missingIds not found")
+            }
+        }
+    }
 }
 
 private fun internalError(message: String?, cause: Throwable? = null): Nothing {
